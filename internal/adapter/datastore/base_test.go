@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 		log.Fatalf("error when creating database connection pool: %v", err)
 	}
 
-	ds = datastore.NewDatastore(mongoDB)
+	ds = datastore.NewDatastore(mongoDB, cfg.MongoDatabaseName)
 
 	os.Exit(m.Run())
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/KauanCarvalho/fiap-sa-payment-service/internal/adapter/datastore"
 	"github.com/KauanCarvalho/fiap-sa-payment-service/internal/config"
 	"github.com/KauanCarvalho/fiap-sa-payment-service/internal/core/domain"
+	"github.com/KauanCarvalho/fiap-sa-payment-service/internal/core/usecase"
 	docs "github.com/KauanCarvalho/fiap-sa-payment-service/swagger"
 
 	"github.com/gin-contrib/requestid"
@@ -34,10 +35,13 @@ func NewServer(cfg *config.Config, mongoDB *mongo.Client) *Server {
 
 func (s *Server) Run() {
 	// Stores.
-	ds := newStores(s.mongoDB)
+	ds := newStores(s.mongoDB, s.cfg.MongoDatabaseName)
+
+	// Usecases.
+	authorizePayment := usecase.NewAuthorizePaymentUseCase(ds)
 
 	// Web server.
-	r := GenerateRouter(s.cfg, ds)
+	r := GenerateRouter(s.cfg, ds, authorizePayment)
 
 	err := r.Run(fmt.Sprintf(":%s", s.cfg.Port))
 	if err != nil {
@@ -48,15 +52,15 @@ func (s *Server) Run() {
 	}
 }
 
-func newStores(mongoDB *mongo.Client) domain.Datastore {
-	return datastore.NewDatastore(mongoDB)
+func newStores(mongoDB *mongo.Client, databaseName string) domain.Datastore {
+	return datastore.NewDatastore(mongoDB, databaseName)
 }
 
-func GenerateRouter(cfg *config.Config, ds domain.Datastore) *gin.Engine {
+func GenerateRouter(cfg *config.Config, ds domain.Datastore, authorizePayment usecase.AuthorizePaymentUseCase) *gin.Engine {
 	r := gin.New()
 
 	setupMiddlewares(r, cfg)
-	registerRoutes(r, cfg, ds)
+	registerRoutes(r, cfg, ds, authorizePayment)
 
 	return r
 }
@@ -74,10 +78,19 @@ func setupMiddlewares(r *gin.Engine, cfg *config.Config) {
 	))
 }
 
-func registerRoutes(r *gin.Engine, cfg *config.Config, ds domain.Datastore) {
+func registerRoutes(r *gin.Engine, cfg *config.Config, ds domain.Datastore, authorizePayment usecase.AuthorizePaymentUseCase) {
 	healthCheckHandler := handler.NewHealthCheckHandler(ds)
+	paymentHandler := handler.NewPaymentHandler(authorizePayment)
 
 	r.GET("/healthcheck", healthCheckHandler.Ping)
+
+	apiV1 := r.Group("/api/v1")
+	{
+		payments := apiV1.Group("/payments")
+		{
+			payments.POST("/authorize", paymentHandler.Authorize)
+		}
+	}
 
 	if cfg.IsDevelopment() {
 		docs.SwaggerInfo.BasePath = ""
