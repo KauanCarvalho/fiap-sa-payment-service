@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  mongodb:
+    container_name: fiap_sa_payment_service_mongo
+    image: mongo:7.0
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    volumes:
+      - ../.mongodata:/data/db
+      - ./testdata/init.js:/docker-entrypoint-initdb.d/init.js
+    ports:
+      - 27017:27017
+    networks:
+      - shared_network
+
+  app:
+    container_name: fiap_sa_payment_service_app
+    ports:
+      - 8083:8083
+    volumes:
+      - .:/app
+    build:
+      context: .
+      target: dev
+    command: tail -f /dev/null
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    external: true
