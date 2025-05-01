@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/KauanCarvalho/fiap-sa-payment-service/internal/application/mock"
+	"github.com/KauanCarvalho/fiap-sa-payment-service/internal/core/domain/entities"
 
 	"github.com/stretchr/testify/require"
 )
@@ -25,6 +26,26 @@ func TestDatastoreMock_Ping(t *testing.T) {
 		ds := &mock.DatastoreMock{}
 
 		err := ds.Ping(ctx)
+		require.ErrorIs(t, err, mock.ErrFunctionNotImplemented)
+	})
+}
+
+func TestDatastoreMock_AuthorizePayment(t *testing.T) {
+	t.Run("when AuthorizePaymentFn is defined, it returns nil", func(t *testing.T) {
+		ds := &mock.DatastoreMock{
+			CreatePaymentFn: func(_ context.Context, _ *entities.Payment) error {
+				return nil
+			},
+		}
+
+		err := ds.CreatePayment(ctx, &entities.Payment{})
+		require.NoError(t, err)
+	})
+
+	t.Run("when CreatePaymentFn is not defined, it returns ErrFunctionNotImplemented", func(t *testing.T) {
+		ds := &mock.DatastoreMock{}
+
+		err := ds.CreatePayment(ctx, &entities.Payment{})
 		require.ErrorIs(t, err, mock.ErrFunctionNotImplemented)
 	})
 }
