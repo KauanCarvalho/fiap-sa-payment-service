@@ -1,0 +1,14 @@
+# File with environment variables.
+.env
+
+# Important paths for live reload.
+tmp/*
+
+# Folder with generated binary files
+bin/*
+
+# Ignore coverage file.
+coverage.out
+
+# Ignore swaagger file.
+swagger/swagger.json
