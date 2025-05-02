@@ -1,0 +1,237 @@
+{
+	"info": {
+		"_postman_id": "e668e3b3-bc83-4463-813f-6d4c2cacf000",
+		"name": "FIAP - Fast Food",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "10219511",
+		"_collection_link": "https://fiap-software-architecture-7128.postman.co/workspace/fiap-sa-payment-service~00801835-ec71-41f6-8b44-a91988e1e285/collection/10219511-e668e3b3-bc83-4463-813f-6d4c2cacf000?action=share&source=collection_link&creator=10219511"
+	},
+	"item": [
+		{
+			"name": "infrastructure",
+			"item": [
+				{
+					"name": "Healthcheck",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/healthcheck"
+					},
+					"response": [
+						{
+							"name": "200 - Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/healthcheck"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "fiap-sa-payment-service-f9790148-1224-449a-b365-3d8dc03c49f1"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 01 May 2025 17:30:29 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "15"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": \"ok\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "api",
+			"item": [
+				{
+					"name": "v1",
+					"item": [
+						{
+							"name": "payments",
+							"item": [
+								{
+									"name": "Create",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"const uuid = () => crypto.randomUUID();\r",
+													"pm.variables.set(\"uuid\", uuid());\r",
+													"\r",
+													"const randomAmount= parseFloat((Math.random() * 100).toFixed(2));\r",
+													"pm.variables.set(\"randomAmount\", randomAmount);"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"amount\": {{randomAmount}},\r\n    \"external_reference\": \"{{uuid}}\",\r\n    \"payment_method\": \"pix\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{base_url}}/api/v1/payments/authorize"
+									},
+									"response": [
+										{
+											"name": "400 - Failure",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\r\n    \"amount\": {{randomAmount}},\r\n    \"external_reference\": \"{{uuid}}\",\r\n    \"payment_method\": \"\"\r\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": "{{base_url}}/api/v1/payments/authorize"
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "X-Request-Id",
+													"value": "fiap-sa-payment-service-2816c29c-f329-4c36-b3e6-6a0141d666f0"
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 01 May 2025 21:30:25 GMT"
+												},
+												{
+													"key": "Content-Length",
+													"value": "73"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"errors\": [\n        {\n            \"field\": \"PaymentMethod\",\n            \"message\": \"This field is required\"\n        }\n    ]\n}"
+										},
+										{
+											"name": "200 - Success",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\r\n    \"amount\": {{randomAmount}},\r\n    \"external_reference\": \"{{uuid}}\",\r\n    \"payment_method\": \"pix\"\r\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": "{{base_url}}/api/v1/payments/authorize"
+											},
+											"status": "Created",
+											"code": 201,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "X-Request-Id",
+													"value": "fiap-sa-payment-service-17b03c7b-0d83-4550-ac16-1cef14273c0f"
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 01 May 2025 21:30:46 GMT"
+												},
+												{
+													"key": "Content-Length",
+													"value": "192"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"amount\": 85.53,\n    \"status\": \"pending\",\n    \"external_reference\": \"ac454d4c-7ce4-4f11-a2b7-cd932b03f762\",\n    \"provider\": \"MercadoPago\",\n    \"payment_method\": \"pix\",\n    \"qr_code\": \"49b2a335-e199-4d5b-93b6-1f0409658bdd\"\n}"
+										},
+										{
+											"name": "409 -  Failure",
+											"originalRequest": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\r\n    \"amount\": {{randomAmount}},\r\n    \"external_reference\": \"ac454d4c-7ce4-4f11-a2b7-cd932b03f762\",\r\n    \"payment_method\": \"pix\"\r\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": "{{base_url}}/api/v1/payments/authorize"
+											},
+											"status": "Conflict",
+											"code": 409,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json; charset=utf-8"
+												},
+												{
+													"key": "X-Request-Id",
+													"value": "fiap-sa-payment-service-718f5eb0-34f4-4b5f-a40d-3e2985ae2a1d"
+												},
+												{
+													"key": "Date",
+													"value": "Thu, 01 May 2025 21:31:08 GMT"
+												},
+												{
+													"key": "Content-Length",
+													"value": "89"
+												}
+											],
+											"cookie": [],
+											"body": "{\n    \"errors\": [\n        {\n            \"field\": \"external_reference\",\n            \"message\": \"External reference already exists\"\n        }\n    ]\n}"
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}
