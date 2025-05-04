@@ -8,6 +8,15 @@ type AuthorizePaymentInput struct {
 	PaymentMethod     string  `json:"payment_method" validate:"required"`
 }
 
+type UpdatePaymentStatusInput struct {
+	ExternalReference string `json:"external_reference" validate:"required"`
+	Status            string `json:"status" validate:"required,oneof=completed failed"`
+}
+
 func ValidatePaymentCreate(input AuthorizePaymentInput) error {
+	return validator.New().Struct(input)
+}
+
+func ValidatePaymentStatusUpdate(input UpdatePaymentStatusInput) error {
 	return validator.New().Struct(input)
 }

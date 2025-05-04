@@ -25,6 +25,7 @@ import (
 // main is the entry point of the entire application.
 func main() {
 	cfg := config.Load()
+	awsConfig := config.LoadAWSConfig()
 
 	log.Println("Starting Fiap SA Payment Service...")
 
@@ -43,6 +44,6 @@ func main() {
 
 	zap.ReplaceGlobals(logger.With(zap.String("app", cfg.AppName), zap.String("env", cfg.AppEnv)))
 
-	apiServer := api.NewServer(cfg, mongoDB)
+	apiServer := api.NewServer(cfg, mongoDB, awsConfig)
 	apiServer.Run()
 }

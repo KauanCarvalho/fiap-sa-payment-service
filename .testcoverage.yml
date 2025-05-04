@@ -48,6 +48,8 @@ exclude:
     - ^cmd/.*                                  # exclude all packages under `cmd` directory.
     - ^internal/adapter/api/api.go*            # exclude file `internal/adapter/api/api.go`
     - ^internal/config/config.go               # exclude file `internal/config/config.go`
+    - ^internal/config/aws.go                  # exclude file `internal/config/aws.go`
+    - ^internal/application/mock/sns_client.go # exclude file `internal/application/mock/sns_client.go`
     - ^internal/config/helper.go               # exclude file `internal/config/helper.go`
     - ^internal/adapter/datastore/datastore.go # exclude file `internal/adapter/datastore/datastore.go`
     - ^internal/di/database.go                 # exclude file `internal/di/database.go`
