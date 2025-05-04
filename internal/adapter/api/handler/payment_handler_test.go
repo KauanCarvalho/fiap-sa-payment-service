@@ -78,3 +78,74 @@ func TestPaymentHandler_Authorize(t *testing.T) {
 		assert.Contains(t, w2.Body.String(), "External reference already exists")
 	})
 }
+
+func TestPaymentHandler_UpdateStatus(t *testing.T) {
+	t.Run("should update payment status successfully", func(t *testing.T) {
+		externalRef := uuid.New().String()
+
+		createBody := map[string]interface{}{
+			"amount":             100.0,
+			"external_reference": externalRef,
+			"payment_method":     "pix",
+		}
+		createPayload, _ := json.Marshal(createBody)
+		reqCreate, _ := http.NewRequest(http.MethodPost, "/api/v1/payments/authorize", bytes.NewReader(createPayload))
+		reqCreate.Header.Set("Content-Type", "application/json")
+		wCreate := httptest.NewRecorder()
+		ginEngine.ServeHTTP(wCreate, reqCreate)
+		assert.Equal(t, http.StatusCreated, wCreate.Code)
+
+		updateBody := map[string]interface{}{
+			"status": "completed",
+		}
+		updatePayload, _ := json.Marshal(updateBody)
+		url := "/api/v1/payments/" + externalRef + "/update-status"
+		req, _ := http.NewRequest(http.MethodPatch, url, bytes.NewReader(updatePayload))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		ginEngine.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNoContent, w.Code)
+	})
+
+	t.Run("should return 400 for missing path param", func(t *testing.T) {
+		updateBody := map[string]interface{}{
+			"status": "completed",
+		}
+		updatePayload, _ := json.Marshal(updateBody)
+		req, _ := http.NewRequest(http.MethodPatch, "/api/v1/payments//update-status", bytes.NewReader(updatePayload))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		ginEngine.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Contains(t, w.Body.String(), "Missing external reference")
+	})
+
+	t.Run("should return 400 for invalid body", func(t *testing.T) {
+		externalRef := uuid.New().String()
+		req, _ := http.NewRequest(http.MethodPatch, "/api/v1/payments/"+externalRef+"/update-status", bytes.NewReader([]byte("invalid json")))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		ginEngine.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Contains(t, w.Body.String(), "Invalid request body")
+	})
+
+	t.Run("should return 404 if payment not found", func(t *testing.T) {
+		nonExistent := uuid.New().String()
+		updateBody := map[string]interface{}{
+			"status": "completed",
+		}
+		updatePayload, _ := json.Marshal(updateBody)
+		url := "/api/v1/payments/" + nonExistent + "/update-status"
+		req, _ := http.NewRequest(http.MethodPatch, url, bytes.NewReader(updatePayload))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		ginEngine.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+		assert.Contains(t, w.Body.String(), "Payment not found")
+	})
+}
