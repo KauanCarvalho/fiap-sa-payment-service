@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-service-api
+  template:
+    metadata:
+      labels:
+        app: payment-service-api
+    spec:
+      containers:
+      - name: payment-service-api
+        image: "${IMAGE_URI}"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: APP_TYPE
+          value: api
+        - name: APP_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: payment-service-config
+              key: APP_NAME
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: payment-service-config
+              key: APP_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: payment-service-config
+              key: PORT
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: payment-service-secrets
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: payment-service-secrets
+              key: AWS_SECRET_ACCESS_KEY
+        - name: DATABASE_URI
+          valueFrom:
+            secretKeyRef:
+              name: payment-service-secrets
+              key: DATABASE_URI
+        resources:
+          requests:
+            memory: 64Mi
+            cpu: 100m
+          limits:
+            memory: 128Mi
+            cpu: 200m
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
