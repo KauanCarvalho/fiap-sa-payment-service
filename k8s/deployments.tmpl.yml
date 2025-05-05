@@ -50,6 +50,11 @@ spec:
             secretKeyRef:
               name: payment-service-secrets
               key: DATABASE_URI
+        - name: AWS_SESSION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: payment-service-secrets
+              key: AWS_SESSION_TOKEN
         resources:
           requests:
             memory: 64Mi

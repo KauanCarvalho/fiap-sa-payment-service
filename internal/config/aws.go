@@ -12,17 +12,19 @@ type SNSConfig struct {
 }
 
 type AWSConfig struct {
-	AccessKey string
-	SecretKey string
-	Region    string
-	SNSConfig SNSConfig
+	AccessKey    string
+	SecretKey    string
+	SessionToken string
+	Region       string
+	SNSConfig    SNSConfig
 }
 
 func LoadAWSConfig() *AWSConfig {
 	return &AWSConfig{
-		AccessKey: fetchEnv("AWS_ACCESS_KEY_ID"),
-		SecretKey: fetchEnv("AWS_SECRET_ACCESS_KEY"),
-		Region:    getEnv("AWS_REGION", "us-east-1"),
+		AccessKey:    fetchEnv("AWS_ACCESS_KEY_ID"),
+		SecretKey:    fetchEnv("AWS_SECRET_ACCESS_KEY"),
+		SessionToken: fetchEnv("AWS_SESSION_TOKEN"),
+		Region:       getEnv("AWS_REGION", "us-east-1"),
 		SNSConfig: SNSConfig{
 			Endpoint: getEnv("AWS_SNS_ENDPOINT", ""),
 		},
