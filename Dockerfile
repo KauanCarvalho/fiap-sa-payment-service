@@ -1,11 +1,11 @@
 FROM golang:1.24.2-alpine AS base
 
 RUN apk add --no-cache \
+    bash \
     curl \
     git \
-    tzdata \
-    bash \
-    make
+    make \
+    tzdata
 
 WORKDIR /app
 
