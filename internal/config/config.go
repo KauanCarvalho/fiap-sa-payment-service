@@ -6,10 +6,11 @@ import (
 )
 
 type Config struct {
-	AppName  string
-	AppEnv   string
-	MongoURI string
-	Port     string
+	AppName           string
+	AppEnv            string
+	MongoURI          string
+	MongoDatabaseName string
+	Port              string
 }
 
 func Load() *Config {
@@ -21,10 +22,11 @@ func Load() *Config {
 	}
 
 	config := &Config{
-		AppName:  getEnv("APP_NAME", "fiap-sa-payment-service"),
-		AppEnv:   environment,
-		MongoURI: fetchEnv("DATABASE_URI"),
-		Port:     getEnv("PORT", "8080"),
+		AppName:           getEnv("APP_NAME", "fiap-sa-payment-service"),
+		AppEnv:            environment,
+		MongoURI:          fetchEnv("DATABASE_URI"),
+		MongoDatabaseName: getEnv("DATABASE_NAME", "fiap_sa_payment_service"),
+		Port:              getEnv("PORT", "8080"),
 	}
 
 	return config

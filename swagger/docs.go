@@ -26,6 +26,58 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/payments/authorize": {
+            "post": {
+                "description": "Authorize a payment.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Authorize a payment.",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_KauanCarvalho_fiap-sa-payment-service_internal_core_usecase_dto.AuthorizePaymentInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_KauanCarvalho_fiap-sa-payment-service_internal_application_dto.PaymentOutput"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_KauanCarvalho_fiap-sa-payment-service_internal_application_dto.APIErrorsOutput"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_KauanCarvalho_fiap-sa-payment-service_internal_application_dto.APIErrorsOutput"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_KauanCarvalho_fiap-sa-payment-service_internal_application_dto.APIErrorsOutput"
+                        }
+                    }
+                }
+            }
+        },
         "/healthcheck": {
             "get": {
                 "description": "Checks the health of the application (connection to database)",
@@ -86,6 +138,48 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_KauanCarvalho_fiap-sa-payment-service_internal_application_dto.PaymentOutput": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "external_reference": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "qr_code": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_KauanCarvalho_fiap-sa-payment-service_internal_core_usecase_dto.AuthorizePaymentInput": {
+            "type": "object",
+            "required": [
+                "amount",
+                "external_reference",
+                "payment_method"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "external_reference": {
+                    "type": "string"
+                },
+                "payment_method": {
                     "type": "string"
                 }
             }

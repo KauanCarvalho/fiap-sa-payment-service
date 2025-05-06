@@ -6,4 +6,5 @@ import (
 
 type Datastore interface {
 	ports.HealthCheckRepository
+	ports.PaymentRepository
 }
