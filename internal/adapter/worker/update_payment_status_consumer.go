@@ -3,7 +3,9 @@ package worker
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
+	"github.com/KauanCarvalho/fiap-sa-payment-service/internal/adapter/datastore"
 	"github.com/KauanCarvalho/fiap-sa-payment-service/internal/application/dto"
 	"github.com/KauanCarvalho/fiap-sa-payment-service/internal/core/usecase"
 	useCaseDTO "github.com/KauanCarvalho/fiap-sa-payment-service/internal/core/usecase/dto"
@@ -63,6 +65,14 @@ func (consumer UpdatePaymentStatusConsumer) Process(_ context.Context, processin
 
 	_, err = consumer.updatePaymentUseCase.Run(ctx, payload)
 	if err != nil {
+		if errors.Is(err, datastore.ErrPaymentNotFound) {
+			zap.L().Error(
+				"payment not found",
+				zap.String("queueName", processingMessage.QueueName),
+				zap.Error(err),
+			)
+			return nil
+		}
 		zap.L().Error(
 			"error updating payment status",
 			zap.String("queueName", processingMessage.QueueName),

@@ -74,28 +74,29 @@ func main() {
 	go func() {
 		select {
 		case signalReceived := <-signalCh:
-			log.Println("Received signal: ", signalReceived)
-			log.Println("Shutting down gracefully...")
+			zap.L().Info("Received signal, shutting down gracefully",
+				zap.String("signal", signalReceived.String()),
+			)
+			zap.L().Info("Shutting down gracefully...")
 
 			cancel()
 		case <-ctx.Done():
-			log.Println("Context canceled, shutting down gracefully...")
+			zap.L().Info("Context canceled, shutting down gracefully...")
 		}
 
 		wgConsumer.Wait()
 
-		log.Println("All polling consumers have finished.")
+		zap.L().Info("All consumers have been finalized. Closing channel...")
 
 		close(chnProcessingMessages)
 	}()
 
-	log.Println("Starting consumers...")
+	zap.L().Info("Starting consumers...")
 
 	wgProcessing.Wait()
 
-	log.Println("All channel processors have been finalized. Shutting down completely.")
+	zap.L().Info("All channel processors have been finalized. Shutting down completely.")
 }
-
 func startWorker(
 	ctx context.Context,
 	chnProcessingMessages <-chan worker.ProcessingMessage,
@@ -106,14 +107,19 @@ func startWorker(
 	defer wg.Done()
 
 	for processingMessage := range chnProcessingMessages {
-		log.Printf("Processing message from queue: %s", processingMessage.QueueName)
+		zap.L().Info("Processing message from queue",
+			zap.String("queue_name", processingMessage.QueueName),
+		)
 
 		var processingError error
 
 		func() {
 			defer func() {
 				if r := recover(); r != nil {
-					log.Println("Recovered from panic while processing message:", r)
+					zap.L().Error("Recovered from panic",
+						zap.String("queue_name", processingMessage.QueueName),
+						zap.Any("error", r),
+					)
 				}
 			}()
 
@@ -125,7 +131,10 @@ func startWorker(
 		if processingError == nil {
 			deleteMessageErr := worker.DeleteMessage(awsConfig, processingMessage)
 			if deleteMessageErr != nil {
-				log.Printf("Error deleting message from queue %s: %s", processingMessage.QueueName, deleteMessageErr)
+				zap.L().Error("Error deleting message",
+					zap.String("queue_name", processingMessage.QueueName),
+					zap.Error(deleteMessageErr),
+				)
 			}
 		}
 	}
