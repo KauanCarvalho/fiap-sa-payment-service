@@ -60,6 +60,34 @@ func TestUpdatePaymentStatusConsumer(t *testing.T) {
 		assert.Equal(t, "completed", updated.Status)
 	})
 
+	t.Run("whe payment does not exist", func(t *testing.T) {
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		num := r.Intn(999_999_999) + 1
+
+		updatePayload := dto.UpdatePaymentStatusInput{
+			ExternalRef: strconv.Itoa(num),
+			Status:      "completed",
+		}
+
+		payloadBytes, err := json.Marshal(updatePayload)
+		require.NoError(t, err)
+
+		snsEnvelope := worker.SNSEnvelope{
+			Body: string(payloadBytes),
+		}
+		snsEnvelopeBytes, err := json.Marshal(snsEnvelope)
+		require.NoError(t, err)
+
+		body := string(snsEnvelopeBytes)
+		msg := worker.ProcessingMessage{
+			QueueName: "test-queue",
+			Message:   &sqs.Message{Body: &body},
+		}
+
+		err = consumer.Process(ctx, msg)
+		require.NoError(t, err)
+	})
+
 	t.Run("invalid JSON in envelope", func(t *testing.T) {
 		body := "{ invalid json }"
 
