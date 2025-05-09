@@ -52,6 +52,7 @@ exclude:
     - ^internal/application/mock/sns_client.go # exclude file `internal/application/mock/sns_client.go`
     - ^internal/config/helper.go               # exclude file `internal/config/helper.go`
     - ^internal/adapter/datastore/datastore.go # exclude file `internal/adapter/datastore/datastore.go`
+    - ^internal/adapter/worker/base.go         # exclude file `internal/adapter/worker/base.go`
     - ^internal/di/database.go                 # exclude file `internal/di/database.go`
     - ^swagger/.*                              # exclude files `swagger/.*`
 

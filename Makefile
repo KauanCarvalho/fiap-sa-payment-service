@@ -7,7 +7,7 @@ ENV_FILE := .env
 GO ?= go
 
 .DEFAULT_GOAL := help
-.PHONY: help deps setup-git-hooks lint check-coverage test coverage-html build-api run-api run-api-air docker-up docker-down swag
+.PHONY: help deps setup-git-hooks lint check-coverage test coverage-html build-api run-api run-api-air docker-up docker-down swag build-worker run-worker run-worker-air
 
 help:
 	@echo "Usage: make [target]"
@@ -23,6 +23,9 @@ help:
 	@echo "  build-api       Build the API"
 	@echo "  run-api         Run the API"
 	@echo "  run-api-air     Run the API with live reloading"
+	@echo "  build-worker    Build the worker"
+	@echo "  run-worker      Run the worker"
+	@echo "  run-worker-air  Run the worker with live reloading"
 	@echo "  docker-up       Start Docker container(s)"
 	@echo "  docker-down     Stop Docker containers"
 	@echo "  swag            Generate Swagger documentation"
@@ -62,6 +65,18 @@ run-api: build-api
 run-api-air: deps
 	@echo "Running api with live reloading..."
 	$(GO) tool air -c .air.api.toml
+
+build-worker:
+	@echo "Building worker..."
+	$(GO) build -o $(BIN_DIR)/$(APP_NAME)_worker ./cmd/worker/main.go
+
+run-worker: build-worker
+	@echo "Running worker..."
+	$(BIN_DIR)/$(APP_NAME)_worker
+
+run-worker-air: deps
+	@echo "Running worker with live reloading..."
+	$(GO) tool air -c .air.worker.toml
 
 docker-up:
 	@echo "Starting Docker container(s)..."

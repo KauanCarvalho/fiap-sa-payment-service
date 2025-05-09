@@ -39,24 +39,13 @@ func (s *Server) Run() {
 	// Stores.
 	ds := newStores(s.mongoDB, s.cfg.MongoDatabaseName)
 
-	// Clients.
-	snsClient, err := config.NewSNSClient(s.awsCfg)
-	if err != nil {
-		zap.L().Fatal("Failed to create SNS client",
-			zap.String("aws_region", s.awsCfg.Region),
-			zap.String("aws_endpoint", s.awsCfg.SNSConfig.Endpoint),
-			zap.Error(err),
-		)
-	}
-
 	// Usecases.
 	authorizePayment := usecase.NewAuthorizePaymentUseCase(ds)
-	updatePaymentStatus := usecase.NewUpdatePaymentStatusUseCase(ds, snsClient)
 
 	// Web server.
-	r := GenerateRouter(s.cfg, ds, authorizePayment, updatePaymentStatus)
+	r := GenerateRouter(s.cfg, ds, authorizePayment)
 
-	err = r.Run(fmt.Sprintf(":%s", s.cfg.Port))
+	err := r.Run(fmt.Sprintf(":%s", s.cfg.Port))
 	if err != nil {
 		zap.L().Fatal("Failed to start server",
 			zap.String("port", s.cfg.Port),
@@ -73,12 +62,11 @@ func GenerateRouter(
 	cfg *config.Config,
 	ds domain.Datastore,
 	authorizePayment usecase.AuthorizePaymentUseCase,
-	updatePaymentStatus usecase.UpdatePaymentStatusUseCase,
 ) *gin.Engine {
 	r := gin.New()
 
 	setupMiddlewares(r, cfg)
-	registerRoutes(r, cfg, ds, authorizePayment, updatePaymentStatus)
+	registerRoutes(r, cfg, ds, authorizePayment)
 
 	return r
 }
@@ -101,10 +89,9 @@ func registerRoutes(
 	cfg *config.Config,
 	ds domain.Datastore,
 	authorizePayment usecase.AuthorizePaymentUseCase,
-	updatePaymentStatus usecase.UpdatePaymentStatusUseCase,
 ) {
 	healthCheckHandler := handler.NewHealthCheckHandler(ds)
-	paymentHandler := handler.NewPaymentHandler(authorizePayment, updatePaymentStatus)
+	paymentHandler := handler.NewPaymentHandler(authorizePayment)
 
 	r.GET("/healthcheck", healthCheckHandler.Ping)
 
@@ -113,7 +100,6 @@ func registerRoutes(
 		payments := apiV1.Group("/payments")
 		{
 			payments.POST("/authorize", paymentHandler.Authorize)
-			payments.PATCH("/:external_reference/update-status", paymentHandler.UpdateStatus)
 		}
 	}
 

@@ -22,7 +22,7 @@ func Load() *Config {
 	}
 
 	config := &Config{
-		AppName:           getEnv("APP_NAME", "fiap-sa-payment-service"),
+		AppName:           getEnv("APP_NAME", "fiap_sa_payment_service"),
 		AppEnv:            environment,
 		MongoURI:          fetchEnv("DATABASE_URI"),
 		MongoDatabaseName: getEnv("DATABASE_NAME", "fiap_sa_payment_service"),

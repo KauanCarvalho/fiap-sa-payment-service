@@ -25,7 +25,7 @@ import (
 // main is the entry point of the entire application.
 func main() {
 	cfg := config.Load()
-	awsConfig := config.LoadAWSConfig()
+	awsConfig := config.LoadAWSConfig(cfg)
 
 	log.Println("Starting Fiap SA Payment Service...")
 
