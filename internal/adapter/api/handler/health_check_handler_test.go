@@ -31,7 +31,7 @@ func TestPing(t *testing.T) {
 			},
 		}
 
-		engineMocked := api.GenerateRouter(cfg, mockDatastore, authorizePayment, updatePaymentStatus)
+		engineMocked := api.GenerateRouter(cfg, mockDatastore, authorizePayment)
 
 		req, _ := http.NewRequest(http.MethodGet, "/healthcheck", nil)
 		w := httptest.NewRecorder()

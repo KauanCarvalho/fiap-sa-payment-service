@@ -69,7 +69,11 @@
 											"listen": "test",
 											"script": {
 												"exec": [
-													""
+													"if (pm.response.code === 201) {\r",
+													"    const responseJson = pm.response.json();\r",
+													"    const external_reference = responseJson.external_reference;\r",
+													"    pm.environment.set(\"external_reference\", external_reference);\r",
+													"}"
 												],
 												"type": "text/javascript",
 												"packages": {}
