@@ -3,12 +3,11 @@ include .env
 APP_NAME := fiap_sa_payment_service
 BDD_TEST_DIR=internal/test/bdd
 BIN_DIR := bin
-DOCKER_COMPOSE := docker-compose
 ENV_FILE := .env
 GO ?= go
 
 .DEFAULT_GOAL := help
-.PHONY: help deps setup-git-hooks lint check-coverage test test-bdd test-payment-service coverage-html build-api run-api run-api-air docker-up docker-down swag build-worker run-worker run-worker-air
+.PHONY: help deps setup-git-hooks lint check-coverage test test-bdd test-payment-service coverage-html build-api run-api run-api-air swag build-worker run-worker run-worker-air
 
 help:
 	@echo ""
@@ -28,8 +27,6 @@ help:
 	@echo "  build-worker          # Build the worker"
 	@echo "  run-worker            # Run the worker"
 	@echo "  run-worker-air        # Run the worker with live reloading"
-	@echo "  docker-up             # Start Docker container(s)"
-	@echo "  docker-down           # Stop Docker containers"
 	@echo "  swag                  # Generate Swagger documentation"
 	@echo ""
 
@@ -88,14 +85,6 @@ run-worker: build-worker
 run-worker-air: deps
 	@echo "Running worker with live reloading..."
 	$(GO) tool air -c .air.worker.toml
-
-docker-up:
-	@echo "Starting Docker container(s)..."
-	$(DOCKER_COMPOSE) up -d $(filter-out $@,$(MAKECMDGOALS))
-
-docker-down:
-	@echo "Stopping Docker containers..."
-	$(DOCKER_COMPOSE) down
 
 swag:
 	@echo "Generating Swagger documentation..."
