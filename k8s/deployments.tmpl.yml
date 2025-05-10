@@ -19,7 +19,9 @@ spec:
         - containerPort: 8080
         env:
         - name: APP_TYPE
-          value: api
+          value: "api"
+        - name: GIN_MODE
+          value: "release"
         - name: APP_NAME
           valueFrom:
             configMapKeyRef:
